@@ -1,0 +1,15 @@
+# Binaries
+modarithm
+*.exe
+*.out
+*.test
+
+# IDE
+.vscode/
+.idea/
+
+# Dependency
+vendor/
+
+# Misc
+*.log
