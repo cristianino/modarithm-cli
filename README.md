@@ -61,30 +61,25 @@ go build -o modarithm
 ### Multiples Commands
 
 ```bash
-# Generate symmetric multiples of 5 (4 on each side)
+# Generate symmetric multiples of 5 (4 on each side) - now defaults to 'all'
 modarithm multiples --n 5 --limit 4
-# Output:
-# Negatives: [-20 -15 -10 -5]
-# Zero: 0
-# Positives: [5 10 15 20]
+# Output: [-20 -15 -10 -5 0 5 10 15 20]
 
-# Generate asymmetric multiples of 3 (2 negative, 4 positive)
+# Generate asymmetric multiples of 3 (2 negative, 4 positive)  
 modarithm multiples --n 3 --limitNeg 2 --limitPos 4
-# Output:
-# Negatives: [-6 -3]
-# Zero: 0
-# Positives: [3 6 9 12]
+# Output: [-6 -3 0 3 6 9 12]
 
-# JSON output for multiples
+# JSON output for multiples (structured + flat array)
 modarithm multiples --n 7 --limit 3 --json
 # Output:
 # {
+#   "all": [-21, -14, -7, 0, 7, 14, 21],
 #   "negatives": [-21, -14, -7],
 #   "zero": 0,
 #   "positives": [7, 14, 21]
 # }
 
-# Show only specific groups
+# Show only specific groups (consistent flag names: neg|zero|pos|all)
 modarithm multiples --n 5 --limit 4 --group neg
 # Output: [-20 -15 -10 -5]
 
@@ -94,7 +89,7 @@ modarithm multiples --n 5 --limit 4 --group zero
 modarithm multiples --n 5 --limit 4 --group pos
 # Output: [5 10 15 20]
 
-# Get all multiples in a single ordered array
+# Get all multiples in a single ordered array (default behavior)
 modarithm multiples --n 5 --limit 4 --group all
 # Output: [-20 -15 -10 -5 0 5 10 15 20]
 
@@ -102,9 +97,17 @@ modarithm multiples --n 5 --limit 4 --group all
 modarithm multiples --n 3 --limitNeg 2 --limitPos 3 --group all
 # Output: [-6 -3 0 3 6 9]
 
-# Combine with JSON for clean output
-modarithm multiples --n 3 --limit 3 --group positives --json
+# Combine specific groups with JSON for clean arrays
+modarithm multiples --n 3 --limit 3 --group pos --json
 # Output: [3, 6, 9]
+```
+
+**Notes:**
+- Default `--group` is `all` for convenience
+- Use consistent flag names: `neg`, `zero`, `pos`, `all`  
+- When `n=0`, all multiples are zero (edge case handled)
+- Limits must be >= 0 (validation included)
+- JSON with `--group all` provides both structured object and flat array
 ```
 
 ### Other Commands
