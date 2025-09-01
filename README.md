@@ -69,6 +69,19 @@ modarithm multiples --n 5 --limit 4
 modarithm multiples --n 3 --limitNeg 2 --limitPos 4
 # Output: [-6 -3 0 3 6 9 12]
 
+# Matrix output: multiple n values (comma-separated)
+modarithm multiples --n 4,6 --limit 6 --group pos
+# Output:
+# [4 8 12 16 20 24]
+# [6 12 18 24 30 36]
+
+# Matrix with more values
+modarithm multiples --n 3,5,7 --limit 4 --group all
+# Output:
+# [-12 -9 -6 -3 0 3 6 9 12]
+# [-20 -15 -10 -5 0 5 10 15 20]
+# [-28 -21 -14 -7 0 7 14 21 28]
+
 # JSON output for multiples (structured + flat array)
 modarithm multiples --n 7 --limit 3 --json
 # Output:
@@ -77,6 +90,15 @@ modarithm multiples --n 7 --limit 3 --json
 #   "negatives": [-21, -14, -7],
 #   "zero": 0,
 #   "positives": [7, 14, 21]
+# }
+
+# JSON matrix output
+modarithm multiples --n 4,6 --limit 3 --group pos --json
+# Output:
+# {
+#   "group": "pos",
+#   "matrix": [[4, 8, 12], [6, 12, 18]],
+#   "n_values": [4, 6]
 # }
 
 # Show only specific groups (consistent flag names: neg|zero|pos|all)
@@ -105,9 +127,11 @@ modarithm multiples --n 3 --limit 3 --group pos --json
 **Notes:**
 - Default `--group` is `all` for convenience
 - Use consistent flag names: `neg`, `zero`, `pos`, `all`  
+- **Matrix support**: Use comma-separated n values (e.g., `--n 4,6,8`) for matrix output
 - When `n=0`, all multiples are zero (edge case handled)
 - Limits must be >= 0 (validation included)
-- JSON with `--group all` provides both structured object and flat array
+- JSON with `--group all` (single n) provides both structured object and flat array
+- JSON with matrix provides `n_values`, `group`, and `matrix` fields
 ```
 
 ### Other Commands
