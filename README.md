@@ -83,6 +83,28 @@ modarithm multiples --n 7 --limit 3 --json
 #   "zero": 0,
 #   "positives": [7, 14, 21]
 # }
+
+# Show only specific groups
+modarithm multiples --n 5 --limit 4 --group neg
+# Output: [-20 -15 -10 -5]
+
+modarithm multiples --n 5 --limit 4 --group zero
+# Output: 0
+
+modarithm multiples --n 5 --limit 4 --group pos
+# Output: [5 10 15 20]
+
+# Get all multiples in a single ordered array
+modarithm multiples --n 5 --limit 4 --group all
+# Output: [-20 -15 -10 -5 0 5 10 15 20]
+
+# Works with asymmetric limits too
+modarithm multiples --n 3 --limitNeg 2 --limitPos 3 --group all
+# Output: [-6 -3 0 3 6 9]
+
+# Combine with JSON for clean output
+modarithm multiples --n 3 --limit 3 --group positives --json
+# Output: [3, 6, 9]
 ```
 
 ### Other Commands
