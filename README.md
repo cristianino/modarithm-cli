@@ -56,20 +56,52 @@ go build -o modarithm
 
 ---
 
-## 🔧 Example Usage (planned)
+## 🔧 Example Usage
+
+### Multiples Commands
 
 ```bash
-# List first 10 multiples of 7
-modarithm multiples --n 7 --limit 10
+# Generate symmetric multiples of 5 (4 on each side)
+modarithm multiples --n 5 --limit 4
+# Output:
+# Negatives: [-20 -15 -10 -5]
+# Zero: 0
+# Positives: [5 10 15 20]
 
-# Check if 45 is a multiple of 9
-modarithm is-multiple --n 45 --a 9
+# Generate asymmetric multiples of 3 (2 negative, 4 positive)
+modarithm multiples --n 3 --limitNeg 2 --limitPos 4
+# Output:
+# Negatives: [-6 -3]
+# Zero: 0
+# Positives: [3 6 9 12]
 
+# JSON output for multiples
+modarithm multiples --n 7 --limit 3 --json
+# Output:
+# {
+#   "negatives": [-21, -14, -7],
+#   "zero": 0,
+#   "positives": [7, 14, 21]
+# }
+```
+
+### Other Commands
+
+```bash
 # Compute gcd(84, 30)
 modarithm gcd --a 84 --b 30
 
+# Compute lcm(12, 18)
+modarithm lcm --a 12 --b 18
+
 # Compute modular inverse of 7 mod 26
 modarithm inverse --a 7 --mod 26
+
+# Fast modular exponentiation
+modarithm modexp --base 5 --exp 117 --mod 19
+
+# Check congruence
+modarithm congruence --a 45 --b 9 --mod 6
 ```
 
 ---
