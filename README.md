@@ -21,7 +21,11 @@ cd modarithm-cli
 go mod tidy
 go build -o modarithm
 ./modarithm --help
-````
+```
+
+## 📖 Documentation
+
+- **[MATH_FORMULAS.md](MATH_FORMULAS.md)** - Detailed mathematical formulas, algorithms, and implementation analysis`
 
 ---
 
