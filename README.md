@@ -218,6 +218,8 @@ modarithm-cli --help
 
 ### Multiples Commands
 
+> 📐 **Mathematical foundations:** See [formal definitions and algorithms →](MATH_FORMULAS.md#multiples)
+
 ```bash
 # Generate symmetric multiples of 5 (4 on each side) - now defaults to 'all'
 modarithm multiples --n 5 --limit 4

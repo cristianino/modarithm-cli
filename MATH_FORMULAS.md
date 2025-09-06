@@ -185,6 +185,202 @@ LCM(12, 18) = |12 × 18| / GCD(12, 18)
 
 ---
 
+## Multiples
+
+### 📐 Mathematical Definition
+
+A **multiple** of an integer `n` is any integer that can be expressed as `n` multiplied by another integer.
+
+**Formal definition:**
+```
+M(n) = {n × k : k ∈ ℤ}
+```
+
+For any integer `n`, the set of its multiples is:
+```
+M(n) = {..., -3n, -2n, -n, 0, n, 2n, 3n, ...}
+```
+
+### 🧮 Properties and Characteristics
+
+**Key mathematical properties:**
+1. **Zero is a multiple of every integer:** `0 = n × 0` for any `n`
+2. **Every integer is a multiple of itself:** `n = n × 1`
+3. **Closure under addition:** If `a` and `b` are multiples of `n`, then `a + b` is also a multiple of `n`
+4. **Closure under subtraction:** If `a` and `b` are multiples of `n`, then `a - b` is also a multiple of `n`
+5. **Distributive property:** `M(n) ∩ M(m) = M(LCM(n,m))`
+
+**Set notation for bounded multiples:**
+```
+M(n, k) = {n × i : i ∈ ℤ, |i| ≤ k}
+```
+
+### 💻 Code Implementation
+
+The implementation provides flexible multiple generation with symmetric and asymmetric bounds:
+
+```go
+// File: internal/mathx/multiples.go
+
+// Symmetric multiples: k multiples on each side of zero
+func MultiplesSym(n, limit int) (Multiples, error) {
+    if limit < 0 {
+        return Multiples{}, errors.New("limit must be >= 0")
+    }
+
+    neg := make([]int, 0, limit)
+    pos := make([]int, 0, limit)
+
+    // Generate: n×1, n×2, ..., n×limit
+    for k := 1; k <= limit; k++ {
+        neg = append(neg, -n*k)  // Negative multiples: -n, -2n, -3n, ...
+        pos = append(pos, n*k)   // Positive multiples: n, 2n, 3n, ...
+    }
+
+    // Sort negatives in ascending order for consistent output
+    slices.Sort(neg)
+
+    return Multiples{Negatives: neg, Zero: 0, Positives: pos}, nil
+}
+
+// Asymmetric multiples: different limits for positive and negative
+func MultiplesAsym(n, limitNeg, limitPos int) (Multiples, error) {
+    if limitNeg < 0 || limitPos < 0 {
+        return Multiples{}, errors.New("limits must be >= 0")
+    }
+
+    neg := make([]int, 0, limitNeg)
+    pos := make([]int, 0, limitPos)
+
+    // Generate negative multiples: -n×1, -n×2, ..., -n×limitNeg
+    for k := 1; k <= limitNeg; k++ {
+        neg = append(neg, -n*k)
+    }
+    
+    // Generate positive multiples: n×1, n×2, ..., n×limitPos
+    for k := 1; k <= limitPos; k++ {
+        pos = append(pos, n*k)
+    }
+
+    slices.Sort(neg)
+    return Multiples{Negatives: neg, Zero: 0, Positives: pos}, nil
+}
+```
+
+### 🔢 Example Trace: Multiples of 5 with limit 3
+
+**Input:** `n = 5, limit = 3`
+
+**Generation process:**
+```
+Negative multiples: k ∈ {1, 2, 3}
+  k=1: -5×1 = -15
+  k=2: -5×2 = -10  
+  k=3: -5×3 = -5
+
+Zero multiple: 5×0 = 0
+
+Positive multiples: k ∈ {1, 2, 3}
+  k=1: 5×1 = 5
+  k=2: 5×2 = 10
+  k=3: 5×3 = 15
+```
+
+**Result:** `M(5,3) = {-15, -10, -5, 0, 5, 10, 15}`
+
+**Verification:**
+- Each element is divisible by 5: `∀x ∈ M(5,3): x ≡ 0 (mod 5)`
+- Covers 3 multiples in each direction from zero
+- Maintains mathematical ordering
+
+### 🎯 Grouping and Filtering
+
+The implementation supports selective output through grouping:
+
+```go
+type Group string
+
+const (
+    GroupNeg  Group = "neg"   // Only negative multiples
+    GroupZero Group = "zero"  // Only zero
+    GroupPos  Group = "pos"   // Only positive multiples  
+    GroupAll  Group = "all"   // Complete ordered set
+)
+
+func (m Multiples) RenderGroup(g Group) []int {
+    switch g {
+    case GroupNeg:
+        return append([]int(nil), m.Negatives...)
+    case GroupZero:
+        return []int{0}
+    case GroupPos:
+        return append([]int(nil), m.Positives...)
+    case GroupAll:
+        // Concatenate: negatives + zero + positives
+        all := make([]int, 0, len(m.Negatives)+1+len(m.Positives))
+        all = append(all, m.Negatives...)
+        all = append(all, 0)
+        all = append(all, m.Positives...)
+        return all
+    default:
+        return nil
+    }
+}
+```
+
+### ⚠️ Computational Limitations
+
+1. **Integer Overflow:**
+   - Limited to Go's `int` type range: `±2^63 - 1` (64-bit systems)
+   - Risk when `n × k` exceeds integer bounds
+   - Example: `n = 2^32, k = 2^32` would overflow
+
+2. **Memory Usage:**
+   - Each multiple set requires `O(limit)` memory
+   - For large limits, memory consumption can be significant
+   - Matrix operations with multiple n-values: `O(count × limit)` memory
+
+3. **Performance Considerations:**
+   - **Time Complexity:** `O(limit)` for generation
+   - **Space Complexity:** `O(limit)` for storage
+   - Sorting negative multiples adds `O(limit log limit)` overhead
+
+4. **Edge Cases Handled:**
+   ```go
+   // n = 0: All multiples are zero
+   M(0, k) = {0, 0, 0, ...} = {0}
+   
+   // limit = 0: Only zero multiple
+   M(n, 0) = {0}
+   
+   // Negative n: Reverses sign pattern
+   M(-5, 2) = {10, 5, 0, -5, -10}
+   ```
+
+### 🧪 Mathematical Verification
+
+**Properties verified by implementation:**
+
+1. **Divisibility:** `∀x ∈ M(n): n | x` (every multiple is divisible by n)
+2. **Completeness:** For limit k, generates exactly `2k+1` multiples (including zero)
+3. **Ordering:** Output maintains mathematical ordering: `M(n)[i] < M(n)[i+1]`
+4. **Symmetry:** For `MultiplesSym`, `|M_neg[i]| = |M_pos[i]|`
+
+**Test verification examples:**
+```go
+// From internal/mathx/multiples_test.go
+func TestMultiplesSym(t *testing.T) {
+    cases := []struct{n, limit int; wantNeg, wantPos []int}{
+        {5, 3, []int{-15, -10, -5}, []int{5, 10, 15}},
+        {0, 2, []int{0, 0}, []int{0, 0}},              // Edge: n=0
+        {3, 0, []int{}, []int{}},                      // Edge: limit=0
+        {-4, 2, []int{8, 4}, []int{-4, -8}},          // Negative n
+    }
+}
+```
+
+---
+
 ## Testing & Verification
 
 ### 🧪 Test Cases in Code
