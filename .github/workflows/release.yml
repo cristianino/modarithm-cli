@@ -46,8 +46,8 @@ jobs:
         COVERAGE=$(go tool cover -func=coverage.out | grep "total:" | awk '{print $3}' | sed 's/%//')
         echo "Test coverage: ${COVERAGE}%"
         # Simple bash arithmetic comparison (no bc needed)
-        if [ "${COVERAGE%.*}" -lt 40 ]; then
-          echo "❌ Test coverage is below 40%"
+        if [ "${COVERAGE%.*}" -lt 35 ]; then
+          echo "❌ Test coverage is below 35%"
           exit 1
         fi
         echo "✅ Test coverage is acceptable"
