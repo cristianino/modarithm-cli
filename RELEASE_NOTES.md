@@ -53,7 +53,7 @@ modarithm gcd --numbers "48,18"
 modarithm lcm --numbers "4,6,8"
 
 # Compute modular exponentiation
-modarithm modexp --base 3 --exponent 4 --modulus 5
+modarithm modexp --base 3 --exp 4 --mod 5
 
 # Find modular inverse
 modarithm inverse --number 3 --modulus 7
