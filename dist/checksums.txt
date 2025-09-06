@@ -1,0 +1,5 @@
+fffa7edaf4ff5be6a085358bd76439533e8a780d79be667a3aa74e2a98647fcf  modarithm-v1.0.0-darwin-amd64.tar.gz
+ceb61c1c65b3c1afeede70cf9410ca45e7dbd7e5466c8cfcf61d2f775f57565c  modarithm-v1.0.0-darwin-arm64.tar.gz
+0567227d1ff3a463b0e78757e986f90cf7f4bb788ae88fd4a99fc98a2d71534b  modarithm-v1.0.0-linux-amd64.tar.gz
+37c8033fec0db47d0d170bd14f490fdbd86e4089310f3185680adc2725b69454  modarithm-v1.0.0-linux-arm64.tar.gz
+f90f8643a90982d8801271de4b5dc8a387f94bad6d02f6ebaae7b42da21d5d03  modarithm-v1.0.0-windows-amd64.zip
