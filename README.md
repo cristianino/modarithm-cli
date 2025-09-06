@@ -3,6 +3,136 @@
 A **Command-Line Interface (CLI)** written in Go for exploring **modular arithmetic** as a foundation for cryptography.  
 The project is both an educational journey and a practical toolkit: learn, experiment, and extend toward cryptographic applications.
 
+## 📥 Quick Download & Install
+
+[![Latest Release](https://img.shields.io/github/v/release/cristianino/modarithm-cli?style=for-the-badge&logo=github&color=blue)](https://github.com/cristianino/modarithm-cli/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/cristianino/modarithm-cli/total?style=for-the-badge&logo=download&color=green)](https://github.com/cristianino/modarithm-cli/releases)
+
+> **🚀 Ready to use! No compilation needed.**
+
+### Choose your platform:
+
+<table>
+<tr>
+<td align="center">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="48" height="48"><br>
+<strong>Linux x64</strong><br>
+<a href="https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-linux-amd64.tar.gz">
+� Download
+</a>
+</td>
+<td align="center">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/linux/linux-original.svg" width="48" height="48"><br>
+<strong>Linux ARM64</strong><br>
+<a href="https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-linux-arm64.tar.gz">
+📥 Download
+</a>
+</td>
+<td align="center">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="48" height="48"><br>
+<strong>macOS Intel</strong><br>
+<a href="https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-darwin-amd64.tar.gz">
+📥 Download
+</a>
+</td>
+<td align="center">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" width="48" height="48"><br>
+<strong>macOS Apple Silicon</strong><br>
+<a href="https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-darwin-arm64.tar.gz">
+📥 Download
+</a>
+</td>
+<td align="center">
+<img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/windows8/windows8-original.svg" width="48" height="48"><br>
+<strong>Windows x64</strong><br>
+<a href="https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-windows-amd64.zip">
+📥 Download
+</a>
+</td>
+</tr>
+</table>
+
+### 🔧 Installation Steps:
+
+#### 🐧 **Linux / macOS:**
+```bash
+# 1. Download and extract (replace URL with your platform)
+wget https://github.com/cristianino/modarithm-cli/releases/latest/download/modarithm-v1.0.0-linux-amd64.tar.gz
+tar -xzf modarithm-v1.0.0-linux-amd64.tar.gz
+
+# 2. Install system-wide (optional)
+sudo mv modarithm-v1.0.0-linux-amd64 /usr/local/bin/modarithm
+
+# 3. Test installation
+modarithm --help
+```
+
+#### 🪟 **Windows:**
+1. **Download** the `.zip` file for Windows
+2. **Extract** the archive 
+3. **Add to PATH** or move `modarithm.exe` to a directory in your PATH
+4. **Test** by opening Command Prompt and running `modarithm --help`
+
+### ✅ **Verify Download (Optional)**
+```bash
+# Download checksums
+wget https://github.com/cristianino/modarithm-cli/releases/latest/download/checksums.txt
+
+# Verify integrity
+sha256sum -c checksums.txt --ignore-missing
+```
+
+---
+
+## 🚀 Quick Start Examples
+
+Get started immediately with these common modular arithmetic operations:
+
+### 🔢 **Greatest Common Divisor (GCD)**
+```bash
+# Find GCD of two numbers
+modarithm gcd --numbers "48,18"
+# Output: 6
+
+# GCD of multiple numbers  
+modarithm gcd --numbers "12,18,24"
+# Output: 6
+```
+
+### 📏 **Least Common Multiple (LCM)**
+```bash
+# Find LCM of multiple numbers
+modarithm lcm --numbers "4,6,8"
+# Output: 24
+
+# LCM with larger numbers
+modarithm lcm --numbers "15,25,35"
+# Output: 525
+```
+
+### ⚡ **Modular Exponentiation**
+```bash
+# Compute (base^exponent) mod modulus efficiently
+modarithm modexp --base 3 --exponent 4 --modulus 5
+# Output: 1 (3^4 = 81, 81 mod 5 = 1)
+
+# Large numbers handled efficiently
+modarithm modexp --base 123 --exponent 456 --modulus 789
+```
+
+### 🔄 **Modular Inverse**
+```bash
+# Find modular inverse (if exists)
+modarithm inverse --number 3 --modulus 7
+# Output: 5 (because 3 * 5 ≡ 1 (mod 7))
+
+# Check if inverse exists
+modarithm inverse --number 6 --modulus 9
+# Output: No inverse exists (gcd(6,9) ≠ 1)
+```
+
+> 💡 **Tip**: Run `modarithm --help` or `modarithm <command> --help` to see all available options!
+
 ---
 
 ## ✨ Vision
@@ -15,12 +145,36 @@ The project is both an educational journey and a practical toolkit: learn, exper
 
 ## 📦 Installation
 
+### Option 1: Download Pre-built Binary (Recommended)
+
+Download the latest binary from the links above, then:
+
+```bash
+# Linux/macOS
+tar -xzf modarithm-*.tar.gz
+chmod +x modarithm-*
+./modarithm-* --help
+
+# Windows
+# Extract the .zip file
+# Run modarithm-windows-amd64.exe --help
+```
+
+### Option 2: Build from Source
+
 ```bash
 git clone https://github.com/cristianino/modarithm-cli.git
 cd modarithm-cli
 go mod tidy
-go build -o modarithm
+make build
 ./modarithm --help
+```
+
+### Option 3: Install with Go
+
+```bash
+go install github.com/cristianino/modarithm-cli@latest
+modarithm-cli --help
 ```
 
 ## 📖 Documentation
@@ -254,13 +408,88 @@ modarithm lcm --a 15 --b 25
 
 ---
 
-## 📚 Motivation
+## �️ Build from Source
+
+For developers who want to modify or contribute:
+
+```bash
+# Clone repository
+git clone https://github.com/cristianino/modarithm-cli.git
+cd modarithm-cli
+
+# Install dependencies
+go mod tidy
+
+# Build
+make build
+
+# Run tests
+make test
+
+# Build for all platforms
+make build-all
+```
+
+---
+
+## 📖 Command Reference
+
+Run `modarithm --help` to see all available commands:
+
+• `gcd` - Calculate Greatest Common Divisor using Euclidean algorithm
+• `lcm` - Calculate Least Common Multiple efficiently  
+• `modexp` - Perform modular exponentiation with large numbers
+• `inverse` - Find modular multiplicative inverse
+• `congruence` - Solve and check linear congruences
+• `multiples` - Generate and analyze multiples of numbers
+
+> 💡 **Tip**: Use `modarithm <command> --help` for detailed options on each command.
+
+---
+
+## 🎯 Educational Purpose
+
+This tool is designed for learning modular arithmetic and number theory. Each command demonstrates real-world mathematical concepts:
+
+• Understand how fundamental algorithms work (Euclidean, Extended Euclidean)
+• Practice with efficient implementations
+• Experiment with parameters and see mathematical relationships
+• Learn foundations essential for cryptography
+
+---
+
+## 🛡️ Security Notes
+
+• Uses standard mathematical algorithms (Euclidean algorithm, binary exponentiation)
+• Proper handling of edge cases and large numbers
+• Educational focus with mathematically sound implementations
+• No cryptographic secrets or random number generation
+
+---
+
+## �📚 Motivation
 
 This project was born as a **personal study plan** in modular arithmetic, with the ultimate goal of reinforcing cryptography knowledge. It is designed for students, enthusiasts, and developers who want a **hands-on math lab** in the terminal.
 
 ---
 
-## ⚠️ Disclaimer
+## 📄 License
 
-This tool is **educational**. Do not use it for production cryptography. For real-world security, rely on audited libraries and standards.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+<div align="center">
+
+**⭐ If you find this tool useful, please give it a star on GitHub! ⭐**
+
+[Report Bug](https://github.com/cristianino/modarithm-cli/issues) • [Request Feature](https://github.com/cristianino/modarithm-cli/issues) • [Documentation](https://github.com/cristianino/modarithm-cli)
+
+</div>
 

@@ -1,0 +1,268 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        default: 'v1.0.0'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Run Tests
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    
+    - name: Download dependencies
+      run: go mod download
+    
+    - name: Run tests
+      run: go test ./... -v -race -coverprofile=coverage.out
+    
+    - name: Check test coverage
+      run: |
+        COVERAGE=$(go tool cover -func=coverage.out | grep "total:" | awk '{print $3}' | sed 's/%//')
+        echo "Test coverage: ${COVERAGE}%"
+        if (( $(echo "$COVERAGE < 40" | bc -l) )); then
+          echo "❌ Test coverage is below 40%"
+          exit 1
+        fi
+        echo "✅ Test coverage is acceptable"
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    name: Build Binaries
+    strategy:
+      matrix:
+        goos: [linux, windows, darwin]
+        goarch: [amd64, arm64]
+        exclude:
+          - goos: windows
+            goarch: arm64
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.22'
+    
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    
+    - name: Get dependencies
+      run: go mod download
+    
+    - name: Get version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION=${{ github.event.inputs.tag }}
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+    
+    - name: Build binary
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+        VERSION: ${{ steps.version.outputs.version }}
+      run: |
+        BINARY_NAME="modarithm-$VERSION-$GOOS-$GOARCH"
+        if [ "$GOOS" = "windows" ]; then
+          BINARY_NAME="${BINARY_NAME}.exe"
+        fi
+        
+        echo "Building $BINARY_NAME for $GOOS/$GOARCH..."
+        
+        go build \
+          -ldflags="-X main.version=$VERSION -s -w" \
+          -o "$BINARY_NAME" \
+          .
+        
+        # Create compressed archives
+        if [ "$GOOS" = "windows" ]; then
+          zip "${BINARY_NAME%.exe}.zip" "$BINARY_NAME"
+          rm "$BINARY_NAME"
+          echo "archive=${BINARY_NAME%.exe}.zip" >> $GITHUB_ENV
+        else
+          tar -czf "${BINARY_NAME}.tar.gz" "$BINARY_NAME"
+          rm "$BINARY_NAME"
+          echo "archive=${BINARY_NAME}.tar.gz" >> $GITHUB_ENV
+        fi
+        
+        echo "✅ Built ${archive}"
+    
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: modarithm-${{ matrix.goos }}-${{ matrix.goarch }}
+        path: "*.tar.gz *.zip"
+        if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Create Release
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Download all artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: ./artifacts
+    
+    - name: Display structure of downloaded files
+      run: ls -la ./artifacts
+    
+    - name: Prepare release assets
+      id: assets
+      run: |
+        mkdir -p ./release-assets
+        find ./artifacts -name "*.tar.gz" -o -name "*.zip" | while read file; do
+          cp "$file" ./release-assets/
+        done
+        ls -la ./release-assets
+        
+        # Generate checksums
+        cd ./release-assets
+        sha256sum * > checksums.txt
+        cd ..
+        
+        echo "assets_ready=true" >> $GITHUB_OUTPUT
+    
+    - name: Get version
+      id: version
+      run: |
+        if [[ "${{ github.event_name }}" == "push" ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION=${{ github.event.inputs.tag }}
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Release version: $VERSION"
+    
+    - name: Generate release notes
+      run: |
+        cat > RELEASE_BODY.md << 'EOF'
+        ## 🚀 What's New in ${{ steps.version.outputs.version }}
+
+        ### ✨ Features & Improvements
+        - Latest version of Modarithm CLI
+        - Modular arithmetic operations for cryptographic learning
+        - Cross-platform support with optimized binaries
+
+        ### 📦 Available Downloads
+
+        Choose the appropriate binary for your system:
+
+        | Platform | Architecture | Download |
+        |----------|-------------|----------|
+        | **🐧 Linux** | AMD64 | `modarithm-${{ steps.version.outputs.version }}-linux-amd64.tar.gz` |
+        | **🐧 Linux** | ARM64 | `modarithm-${{ steps.version.outputs.version }}-linux-arm64.tar.gz` |
+        | **🍎 macOS** | Intel (AMD64) | `modarithm-${{ steps.version.outputs.version }}-darwin-amd64.tar.gz` |
+        | **🍎 macOS** | Apple Silicon (ARM64) | `modarithm-${{ steps.version.outputs.version }}-darwin-arm64.tar.gz` |
+        | **🪟 Windows** | AMD64 | `modarithm-${{ steps.version.outputs.version }}-windows-amd64.zip` |
+
+        ### 🔧 Quick Installation
+
+        #### Linux/macOS:
+        ```bash
+        # Download and extract (replace with your platform)
+        wget https://github.com/cristianino/modarithm-cli/releases/download/${{ steps.version.outputs.version }}/modarithm-${{ steps.version.outputs.version }}-linux-amd64.tar.gz
+        tar -xzf modarithm-${{ steps.version.outputs.version }}-linux-amd64.tar.gz
+        chmod +x modarithm-${{ steps.version.outputs.version }}-linux-amd64
+        ./modarithm-${{ steps.version.outputs.version }}-linux-amd64 --help
+        ```
+
+        #### Windows:
+        1. Download the `.zip` file for Windows
+        2. Extract the archive
+        3. Run `modarithm-${{ steps.version.outputs.version }}-windows-amd64.exe --help`
+
+        ### ✅ Verify Download (Optional)
+        ```bash
+        # Download checksums
+        wget https://github.com/cristianino/modarithm-cli/releases/download/${{ steps.version.outputs.version }}/checksums.txt
+
+        # Verify integrity
+        sha256sum -c checksums.txt --ignore-missing
+        ```
+
+        ### 🎯 Quick Start Examples
+        ```bash
+        # Calculate GCD of two numbers
+        modarithm gcd --numbers "48,18"
+
+        # Find LCM of multiple numbers
+        modarithm lcm --numbers "4,6,8"
+
+        # Compute modular exponentiation
+        modarithm modexp --base 3 --exponent 4 --modulus 5
+
+        # Find modular inverse
+        modarithm inverse --number 3 --modulus 7
+        ```
+
+        ### 🔒 Security
+        - All binaries are built with Go's secure compilation process
+        - SHA256 checksums provided for integrity verification
+        - No external dependencies required
+
+        ---
+
+        **📖 Learn More**: [Documentation](https://github.com/cristianino/modarithm-cli) | [Math Formulas](https://github.com/cristianino/modarithm-cli/blob/main/MATH_FORMULAS.md)
+        EOF
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        name: "Release ${{ steps.version.outputs.version }}"
+        body_path: RELEASE_BODY.md
+        draft: false
+        prerelease: false
+        files: ./release-assets/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release Summary
+      run: |
+        echo "🎉 Release ${{ steps.version.outputs.version }} created successfully!"
+        echo "📦 Assets uploaded:"
+        ls -la ./release-assets/
+        echo ""
+        echo "🔗 Release URL: https://github.com/cristianino/modarithm-cli/releases/tag/${{ steps.version.outputs.version }}"
